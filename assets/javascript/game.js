@@ -9,7 +9,7 @@ var index = 0;
 
 //use AJAX call to get 10 animal trivia questions from Open Trivia Database API, nest functions within callback function because AJAX call is async
 
-	$.ajax({
+$.ajax({
     url: "https://opentdb.com/api.php?amount=10&category=27&type=multiple",
     method: "GET"
 }).done(function(response) {
@@ -20,11 +20,11 @@ var index = 0;
     if (index >= trivia.results.length) {
         $(".display").html("Woo! Your score is: <br>Correct: " + correctAnswers + "<br>Incorrect: " + incorrectAnswers);
         $(".display").append("<br><br><button class='reset-button' id='replay'>Play Again</button>");
-        $(".reset-button").click(function(){
-        	index = 0;
-        	correctAnswers = 0;
-        	incorrectAnswerss = 0;
-        	displayQuestion();
+        $(".reset-button").click(function() {
+            index = 0;
+            correctAnswers = 0;
+            incorrectAnswerss = 0;
+            displayQuestion();
         });
     } else { displayQuestion(); }
 
@@ -34,11 +34,11 @@ var index = 0;
         if (index >= trivia.results.length) {
             $(".display").html("Woo! Your score is: <br>Correct: " + correctAnswers + "<br>Incorrect: " + incorrectAnswers);
             $(".display").append("<br><br><button class='button' id='replay'>Play Again</button>");
-        $(".button").click(function(){
-        	index = 0;
-        	correctAnswers = 0;
-        	incorrectAnswerss = 0;
-        });
+            $(".button").click(function() {
+                index = 0;
+                correctAnswers = 0;
+                incorrectAnswerss = 0;
+            });
             return;
         }
 
@@ -73,19 +73,21 @@ var index = 0;
 
         var timeRemaining = 30;
         $(".display").append("<span id='countdown'></span>");
-        // var countdownClock = setInterval(countdown, 1000);
+        var countdownClock = setInterval(countdown, 1000);
 
-        // function countdown() {
+        function countdown() {
 
-        //     $("#countdown").html("<br>Time remaining: " + timeRemaining);
-        //     timeRemaining--;
-        // }
+            $("#countdown").html("<br>Time remaining: " + timeRemaining);
+            timeRemaining--;
+        };
 
         // setTimeout(incorrectAnswer, 30000);
 
         $(".button").click(function() {
+        		clearInterval(countdownClock);
             //button clicked is correct
             if (this.value == trivia.results[index].correct_answer) {
+                
                 correctAnswer();
             }
 
@@ -99,7 +101,6 @@ var index = 0;
 
         // //define a function to display a screen when either the wrong answer is chosen or the player runs out of time, then calls the displayQuestion function after a setTimeout
         function incorrectAnswer() {
-            // clearInterval(countdownClock);
             $(".display").html("Aww, nuts! Looks like the correct answer was " + rightAnswer + ".");
             incorrectAnswers++;
             index++;
@@ -109,7 +110,6 @@ var index = 0;
 
         // //define a function to display a screen when the correct answer is chosen, then calls the displayQuestion function after a setTimeout
         function correctAnswer() {
-            // clearInterval(countdownClock);
             $(".display").html("Correct!");
             correctAnswers++;
             index++;
@@ -118,4 +118,4 @@ var index = 0;
 
     }
 
-	});
+});
