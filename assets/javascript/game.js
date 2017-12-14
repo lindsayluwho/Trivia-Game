@@ -1,4 +1,3 @@
-
 //set up an object containing trivia questions, corresponding correct answers, and wrong (filler) answers
 var trivia;
 // //set variables for incorrect and correct answers that will increment conditionally
@@ -8,66 +7,110 @@ var incorrectAnswers = 0;
 var index = 0;
 
 
-
+//use AJAX call to get 10 animal trivia questions from Open Trivia Database API, nest functions within callback function because AJAX call is async
 $.ajax({
-	url:"https://opentdb.com/api.php?amount=10&category=27&type=multiple",method: "GET"}).done(function(response){
-			
-		trivia = response;
-		
-//set conditional to display final screen after last question in the trivia.questions array is shown to display final score and reset game button
-		if (index >= trivia.results.length)
-		{
-			$(".display").html("Woo! Your score is: <br>Correct: " + correctAnswers + "<br>Incorrect: " + incorrectAnswers);
-			$(".display").append("<br><br><button class='button' id='replay'>Play Again</button>");
-		}
-		else{displayQuestion();}
+    url: "https://opentdb.com/api.php?amount=10&category=27&type=multiple",
+    method: "GET"
+}).done(function(response) {
 
-// //define a function to display the next question in the trivia.questions array and a countdown clock. will also be used to reset the game on button click.
+    trivia = response;
 
-	  function displayQuestion()
-		{
-			var answers = [trivia.results[index].incorrect_answers[0], trivia.results[index].incorrect_answers[1], trivia.results[index].incorrect_answers[2], trivia.results[index].correct_answer];
-			
-			function shuffle (array) {
-	  		var i = 0
-	    		, j = 0
-	    		, temp = null
+    //set conditional to display final screen after last question in the trivia.questions array is shown to display final score and reset game button
+    if (index >= trivia.results.length) {
+        $(".display").html("Woo! Your score is: <br>Correct: " + correctAnswers + "<br>Incorrect: " + incorrectAnswers);
+        $(".display").append("<br><br><button class='button' id='replay'>Play Again</button>");
+    } else { displayQuestion(); }
 
-	  		for (i = array.length - 1; i > 0; i -= 1) {
-	    		j = Math.floor(Math.random() * (i + 1))
-	    		temp = array[i]
-	    		array[i] = array[j]
-	    		array[j] = temp
-	  		}
-	  	}
+    // //define a function to display the next question in the trivia.questions array and a countdown clock. will also be used to reset the game on button click.
 
-	  	shuffle(answers);
-			
-			$(".display").html(trivia.results[index].question + "<br>");
-			
-			for (k = 0; k < answers.length; k++){
-				$(".display").append("<button class='button'>" + answers[k] + "</button>");
-				}
-		}
+    function displayQuestion() {
+        if (index >= trivia.results.length) {
+            $(".display").html("Woo! Your score is: <br>Correct: " + correctAnswers + "<br>Incorrect: " + incorrectAnswers);
+            $(".display").append("<br><br><button class='button' id='replay'>Play Again</button>");
+            return;
+        }
+
+        var answers = [trivia.results[index].incorrect_answers[0], trivia.results[index].incorrect_answers[1], trivia.results[index].incorrect_answers[2], trivia.results[index].correct_answer];
+
+        var rightAnswer = trivia.results[index].correct_answer;
+
+        function shuffle(array) {
+            var i = 0,
+                j = 0,
+                temp = null
+
+            for (i = array.length - 1; i > 0; i -= 1) {
+                j = Math.floor(Math.random() * (i + 1))
+                temp = array[i]
+                array[i] = array[j]
+                array[j] = temp
+            }
+        }
+
+        //display potential answers in shuffled order so correct answer is not always in the same location
+
+        shuffle(answers);
+
+        $(".display").html(trivia.results[index].question + "<br>");
+
+        for (k = 0; k < answers.length; k++) {
+            $(".display").append("<button class='button' value='" + answers[k] + "'>" + answers[k] + "</button>");
+        }
+
+        // define a countdown clock to display on question screen, screen progresses to incorrectAnswer if clock runs out via setTimeout 
+
+        var timeRemaining = 30;
+        $(".display").append("<span id='countdown'></span>");
+        var countdownClock = setInterval(countdown, 1000);
+
+        function countdown() {
+
+            $("#countdown").html("<br>Time remaining: " + timeRemaining);
+            timeRemaining--;
+        }
+
+        setTimeout(incorrectAnswer, 30000);
+
+        $(".button").click(function() {
+            //button clicked is correct
+            if (this.value == trivia.results[index].correct_answer) {
+                correctAnswer();
+            }
 
 
-// //define a function to display a screen when the correct answer is chosen, then calls the displayQuestion function after a setTimeout
-// function correctAnswer()
-// {
-// 	index++;
-// }
+            //button clicked is incorrect
+            else {
+                incorrectAnswer();
+            }
 
-// //define a function to display a screen when either the wrong answer is chosen or the player runs out of time, then calls the displayQuestion function after a setTimeout
-// function incorrectAnswer()
-// {
-// 	index++;
-// }
+        });
+
+        // //define a function to display a screen when either the wrong answer is chosen or the player runs out of time, then calls the displayQuestion function after a setTimeout
+        function incorrectAnswer() {
+        		clearInterval(countdownClock);
+            $(".display").html("Aww, nuts! Looks like the correct answer was " + rightAnswer + ".");
+            incorrectAnswers++;
+            index++;
+            setTimeout(displayQuestion, 3000);
+            
+        }
+
+        // //define a function to display a screen when the correct answer is chosen, then calls the displayQuestion function after a setTimeout
+        function correctAnswer() {
+        	  clearInterval(countdownClock);
+            $(".display").html("Correct!");
+            correctAnswers++;
+            index++;
+            setTimeout(displayQuestion, 3000);
+        }
 
 
+    }
+
+    
 
 
-  
-
+    
 
 
 });
