@@ -38,8 +38,8 @@ $.ajax({
                 index = 0;
                 correctAnswers = 0;
                 incorrectAnswerss = 0;
+                displayQuestion();
             });
-            return;
         }
 
         var answers = [trivia.results[index].incorrect_answers[0], trivia.results[index].incorrect_answers[1], trivia.results[index].incorrect_answers[2], trivia.results[index].correct_answer];
@@ -63,7 +63,7 @@ $.ajax({
 
         shuffle(answers);
 
-        $(".display").html(trivia.results[index].question + "<br>");
+        $(".display").html(trivia.results[index].question + "<br><br>");
 
         for (k = 0; k < answers.length; k++) {
             $(".display").append("<button class='button' value='" + answers[k] + "'>" + answers[k] + "</button>");
@@ -72,16 +72,19 @@ $.ajax({
         // define a countdown clock to display on question screen, screen progresses to incorrectAnswer if clock runs out via setTimeout 
 
         var timeRemaining = 30;
-        $(".display").append("<span id='countdown'></span>");
+        $(".display").append("<div id='countdown'></div>");
         var countdownClock = setInterval(countdown, 1000);
 
         function countdown() {
 
-            $("#countdown").html("<br>Time remaining: " + timeRemaining);
+            $("#countdown").html("<br><br>Time remaining: " + timeRemaining);
             timeRemaining--;
+            if (timeRemaining == -1) {
+            	timeRemaining = 30;
+            	clearInterval(countdownClock);
+            	incorrectAnswer(); }
         };
 
-        // setTimeout(incorrectAnswer, 30000);
 
         $(".button").click(function() {
         		clearInterval(countdownClock);
